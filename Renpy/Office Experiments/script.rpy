@@ -7,14 +7,15 @@ image SakuraPath = "Sakura_Path.jpg"
 
 define g = Character("Girl")
 define b = Character("Boy")
+define audio.dramatic = "music/Dramatic.mp3"
     
 
     
 screen showbutton():
-    textbutton "Inventory":
-        action ShowMenu ("inventory_screen")
-        xpos 0.8
-        ypos 0.1
+     imagebutton:
+            xpos 0.7 ypos 0
+            idle "Inventory_Button.png" 
+            action ShowMenu("inventory_screen")
 
 
 
@@ -23,28 +24,22 @@ label start:
     $ has_phone = False
     $ coins = 0
     $ items = []
-    $ items_length = len([items])
-
-
-    
-    $ showitems = True
-   
+    $ items_length = len([items])   
   
 
     screen inventory_screen:
         
-        text "{color=#000000}Inventory" xpos 0.8 ypos 0.1
+        #text "{color=#000000}Inventory" xpos 0.8 ypos 0.1
         
         imagebutton:
-            xpos 1000 ypos 430
-            idle "arrowborderlessright.png" 
-            hover "arrowborderright.png"
+            xpos 0.7 ypos 0
+            idle "Inventory_Button.png" 
             action Return()
             
         for items_length in [items]:
             $ items = '\n'.join(items) 
             text "{color=#000000}[items]" xpos 0.8 ypos 0.2
-        
+            
 
     
     transform alpha_dissolve:
@@ -53,7 +48,7 @@ label start:
         on hide:
             linear 0.5 alpha 0
     screen countdown:
-        timer 0.01 repeat True action If(time > 0, true=SetVariable("time", time - 0.01), false=[Hide("countdown"), Jump(timer_jump)])
+        timer 0.01 repeat True action If(time > 0, true=SetVariable("time", time - 0.0057), false=[Hide("countdown"), Jump(timer_jump)])
         bar value time range timer_range xalign 0.5 yalign 0.1 xmaximum 300 at alpha_dissolve
         
     init:
@@ -83,6 +78,7 @@ label start:
           #  easein 0.2 alpha 0
  
     scene BBedroom
+    
     "Today you made 10 coins!!"
     "You found an old watch!"
     $ coins += 10
@@ -92,22 +88,26 @@ label start:
     "You now have %(coins)d coins."
     
     "You have a [items[1]] in your inventory."
+    
     $ time = 10
     $ timer_range = 10
     $ timer_jump = "timer1_slow"
+    play music dramatic noloop
     show screen countdown
+   
     menu:
         "Call girl":
             #hide screen countdown
             jump lookforphone
         "Go to school":
             hide screen countdown
-            jump walkschool1
+            show screen toPath
+            #jump walkschool1
     label lookforphone:
         scene BBedroom
         "Look for your phone"
         # if not has_phone:
-        show screen toSakura
+        show screen findPhone
         $ renpy.pause (hard = 'True')
         jump phonecall1     
     label timer1_slow:
@@ -119,34 +119,41 @@ label start:
         $ items.append ("phone")
         "You now have a [items[2]] in your inventory"
         show screen showbutton()
-        #$ showitems = true
-
         
         g "Hello?"
         b "Hey girl."
-        jump walkschool1
+        #jump walkschool1
+        show screen toPath
        
     label walkschool1:
         scene SakuraPath
         "It's a nice day outside today."
         show screen toRoom
         $ renpy.pause (hard = 'True')
-        
-    screen toSakura:
+    
+    screen toPath:
         modal False
- 
         imagebutton:
-            xpos 1000 ypos 430
+            xpos 1000 ypos 415
             idle "arrowborderlessright.png" 
             hover "arrowborderright.png"
-            action [SetVariable("has_phone", True), Hide("toSakura", transition=dissolve), Jump("phonecall1")]
+            action [Hide("toPath", transition=dissolve), Jump("walkschool1")]
+        
+    screen findPhone:
+        modal False
+        imagebutton:
+            xpos 500 ypos 200
+            idle "phone.jpg"
+            hover "IPhone.png"
+            action [SetVariable("has_phone", True), Hide("findPhone", transition=dissolve), Jump("phonecall1")]
+            
     screen toRoom:
         modal False
         imagebutton:
             xpos 20 ypos 430
             idle "arrowborderlessleft.png" 
             hover "arrowborderleft.png"
-            action [SetVariable("has_phone", True), Hide("toRoom", transition=dissolve), Jump("lookforphone")]
+            action [Hide("toRoom", transition=dissolve), Jump("lookforphone")]
             
 
     
